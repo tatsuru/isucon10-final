@@ -96,7 +96,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: "10.164.40.103"
+                      address: "10.164.40.102"
                       port_value: 9292
     - name: xsuportal_api
       type: STATIC
@@ -115,5 +115,5 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: "10.164.40.103"
+                      address: "10.164.40.102"
                       port_value: 50051
