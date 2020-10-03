@@ -6,7 +6,7 @@ root=$(cd "$(dirname "$0")" && cd .. && pwd)
 now=$(date +%Y%m%d-%H%M%S)
 
 branch=${1-master}
-make="PATH=$PATH:/home/isucon/local/go/bin/ make"
+make="PATH=$PATH:/home/isucon/local/golang/bin/ make"
 
 command="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && git pull && $make && sudo systemctl restart xsuportal-web-golang.service && sudo systemctl restart xsuportal-api-golang.service"
 rotate_nginx="sudo mv /var/log/nginx/access.log.ltsv /var/log/nginx/access.log.ltsv.$now && sudo ln -sf /var/log/nginx/access.log.ltsv.$now /var/log/nginx/access.log.ltsv.latest; sudo systemctl reload nginx.service"
