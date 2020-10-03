@@ -59,7 +59,7 @@ func inLeaderboardFreezeTime(now time.Time) bool {
 
 func main() {
 	srv := echo.New()
-	srv.Debug = util.GetEnv("DEBUG", "") != ""
+	// srv.Debug = util.GetEnv("DEBUG", "") != ""
 	srv.Server.Addr = fmt.Sprintf(":%v", util.GetEnv("PORT", "9292"))
 	srv.HideBanner = true
 
@@ -74,7 +74,7 @@ func main() {
 	db, _ = xsuportal.GetDB()
 	db.SetMaxOpenConns(10)
 
-	srv.Use(middleware.Logger())
+	// srv.Use(middleware.Logger())
 	srv.Use(middleware.Recover())
 	srv.Use(session.Middleware(sessions.NewCookieStore([]byte("tagomoris"))))
 
