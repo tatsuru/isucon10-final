@@ -59,7 +59,7 @@ func inLeaderboardFreezeTime(now time.Time) bool {
 
 func main() {
 	srv := echo.New()
-	srv.Debug = util.GetEnv("DEBUG", "") != ""
+	// srv.Debug = util.GetEnv("DEBUG", "") != ""
 	srv.Server.Addr = fmt.Sprintf(":%v", util.GetEnv("PORT", "9292"))
 	srv.HideBanner = true
 
