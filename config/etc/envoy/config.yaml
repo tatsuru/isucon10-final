@@ -63,7 +63,7 @@ static_resources:
                 use_remote_address: true
                 access_log:
                   - name: envoy.file_access_log
-                    config:
+                    typed_config:
                       "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
                       json_format: { "time": "%START_TIME%", "remote_addr": "%DOWNSTREAM_REMOTE_ADDRESS%", "method": "%REQ(:METHOD)%", "uri": "%REQ(:PATH)%", "protocol": "%PROTOCOL%", "status": "%RESPONSE_CODE%", "body_bytes": "%BYTES_SENT%", "request_time": "%DURATION%", "response_time": "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%" }
                       path: /var/log/envoy/access.log.json
