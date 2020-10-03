@@ -9,16 +9,13 @@ branch=${1-master}
 make="PATH=$PATH:/home/isucon/local/golang/bin/ make"
 
 command="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && git pull && $make && sudo systemctl restart xsuportal-web-golang.service && sudo systemctl restart xsuportal-api-golang.service"
-rotate_nginx="sudo mv /var/log/nginx/access.log.ltsv /var/log/nginx/access.log.ltsv.$now && sudo ln -sf /var/log/nginx/access.log.ltsv.$now /var/log/nginx/access.log.ltsv.latest; sudo systemctl reload nginx.service"
+rotate_envoy="sudo mv /var/log/envoy/access.log.json /var/log/envoy/access.log.json.$now && sudo ln -sf /var/log/envoy/access.log.json.$now /var/log/envoy/access.log.json.latest; sudo systemctl restart envoy.service"
 #rotate_mysql="sudo mv /var/log/mariadb/slow.log /var/log/mariadb/slow.log.$now && sudo ln -sf /var/log/mariadb/slow.log.$now /var/log/mariadb/slow.log.latest; mysqladmin -uisucon -pisucon flush-logs"
 
 ssh isucon-server1 "$command" &
 #ssh isucon-server2 "$command" &
 #ssh isucon-server3 "$command" &
 
-wait
+ssh isucon@isucon-server1 "$rotate_envoy"
 
-#ssh isucon@isucon-server1 "$rotate_nginx"
-# ssh isucon@isucon-server2 "$rotate_nginx"
-# ssh isucon@isucon-server3 "$rotate_nginx"
-# ssh isucon@isucon-server1 "$rotate_mysql"
+wait
