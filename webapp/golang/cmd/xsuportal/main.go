@@ -501,7 +501,7 @@ func (*ContestantService) ListClarifications(e echo.Context) error {
 	var teams []xsuportal.Team
 	err = db.Select(&teams, "SELECT * FROM `teams` WHERE id in (?)", teamIds)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("batch select teams: %w", err)
 	}
 	var teamByTeamID map[int64]xsuportal.Team
 	for _, team := range teams {
