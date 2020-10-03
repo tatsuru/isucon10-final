@@ -498,15 +498,20 @@ func (*ContestantService) ListClarifications(e echo.Context) error {
 		teamIds = append(teamIds, clarification.TeamID)
 	}
 	res := &contestantpb.ListClarificationsResponse{}
+
 	var teams []xsuportal.Team
-	query, vs, err := sqlx.In("SELECT * FROM `teams` WHERE id in (?)", teamIds)
-	if err != nil {
-		return fmt.Errorf("failed to generate query: %w", err)
+
+	if len(teamIds) != 0 {
+		query, vs, err := sqlx.In("SELECT * FROM `teams` WHERE id in (?)", teamIds)
+		if err != nil {
+			return fmt.Errorf("failed to generate query: %w", err)
+		}
+		err = db.Select(&teams, query, vs...)
+		if err != nil {
+			return fmt.Errorf("batch select teams: %w", err)
+		}
 	}
-	err = db.Select(&teams, query, vs...)
-	if err != nil {
-		return fmt.Errorf("batch select teams: %w", err)
-	}
+
 	var teamByTeamID map[int64]xsuportal.Team
 	for _, team := range teams {
 		teamByTeamID[team.ID] = team
@@ -1114,16 +1119,21 @@ func (*AudienceService) ListTeams(e echo.Context) error {
 	for _, team := range teams {
 		teamIds = append(teamIds, team.ID)
 	}
-	query, vs, err := sqlx.In("SELECT * FROM `contestants` WHERE `team_id` in (?) ORDER BY `created_at`", teamIds)
-	if err != nil {
-		return fmt.Errorf("failed to generate query: %w", err)
-	}
+
 	var members []xsuportal.Contestant
-	err = db.Select(
-		&members,
-		query,
-		vs...,
-	)
+
+	if len(teamIds) != 0 {
+		query, vs, err := sqlx.In("SELECT * FROM `contestants` WHERE `team_id` in (?) ORDER BY `created_at`", teamIds)
+		if err != nil {
+			return fmt.Errorf("failed to generate query: %w", err)
+		}
+		err = db.Select(
+			&members,
+			query,
+			vs...,
+		)
+	}
+
 	var membersByTeamID map[int64][]xsuportal.Contestant
 	for _, contestant := range members {
 		if !contestant.TeamID.Valid {
