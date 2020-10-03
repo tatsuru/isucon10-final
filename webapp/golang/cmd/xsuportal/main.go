@@ -47,6 +47,9 @@ const (
 var db *sqlx.DB
 var notifier xsuportal.Notifier
 
+var leaderboardCache *resourcespb.Leaderboard
+var leaderboardCacheExpiresAt time.Time
+
 func main() {
 	srv := echo.New()
 	srv.Debug = util.GetEnv("DEBUG", "") != ""
@@ -1129,9 +1132,17 @@ func (*AudienceService) ListTeams(e echo.Context) error {
 }
 
 func (*AudienceService) Dashboard(e echo.Context) error {
-	leaderboard, err := makeLeaderboardPB(e, 0)
-	if err != nil {
-		return fmt.Errorf("make leaderboard: %w", err)
+	var leaderboard *resourcespb.Leaderboard
+	var err error
+	if time.Now().After(leaderboardCacheExpiresAt) {
+		leaderboard, err = makeLeaderboardPB(e, 0)
+		if err != nil {
+			return fmt.Errorf("make leaderboard: %w", err)
+		}
+		leaderboardCacheExpiresAt = time.Now().Add(time.Second * 1)
+		leaderboardCache = leaderboard
+	} else {
+		leaderboard = leaderboardCache
 	}
 	return writeProto(e, http.StatusOK, &audiencepb.DashboardResponse{
 		Leaderboard: leaderboard,
