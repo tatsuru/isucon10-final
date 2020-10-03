@@ -1102,23 +1102,33 @@ type AudienceService struct{}
 
 func (*AudienceService) ListTeams(e echo.Context) error {
 	var teams []xsuportal.Team
+	var teamIds []int64
 	err := db.Select(&teams, "SELECT * FROM `teams` WHERE `withdrawn` = FALSE ORDER BY `created_at` DESC")
 	if err != nil {
 		return fmt.Errorf("select teams: %w", err)
 	}
+	for _, team := range teams {
+		teamIds = append(teamIds, team.ID)
+	}
+	var members []xsuportal.Contestant
+	err = db.Select(
+		&members,
+		"SELECT * FROM `contestants` WHERE `team_id` in (?) ORDER BY `created_at`",
+		teamIds,
+	)
+	var membersByTeamID map[int64][]xsuportal.Contestant
+	for _, contestant := range members {
+		if !contestant.TeamID.Valid {
+			continue
+		}
+		contestantTeamID := contestant.TeamID.Int64
+		membersByTeamID[contestantTeamID] = append(membersByTeamID[contestantTeamID], contestant)
+	}
 	res := &audiencepb.ListTeamsResponse{}
 	for _, team := range teams {
-		var members []xsuportal.Contestant
-		err := db.Select(
-			&members,
-			"SELECT * FROM `contestants` WHERE `team_id` = ? ORDER BY `created_at`",
-			team.ID,
-		)
-		if err != nil {
-			return fmt.Errorf("select members(team_id=%v): %w", team.ID, err)
-		}
 		var memberNames []string
 		isStudent := true
+		members := membersByTeamID[team.ID]
 		for _, member := range members {
 			memberNames = append(memberNames, member.Name.String)
 			isStudent = isStudent && member.Student
