@@ -512,7 +512,7 @@ func (*ContestantService) ListClarifications(e echo.Context) error {
 		}
 	}
 
-	var teamByTeamID map[int64]xsuportal.Team
+	teamByTeamID := make(map[int64]xsuportal.Team)
 	for _, team := range teams {
 		teamByTeamID[team.ID] = team
 	}
@@ -1134,7 +1134,7 @@ func (*AudienceService) ListTeams(e echo.Context) error {
 		)
 	}
 
-	var membersByTeamID map[int64][]xsuportal.Contestant
+	membersByTeamID := make(map[int64][]xsuportal.Contestant)
 	for _, contestant := range members {
 		if !contestant.TeamID.Valid {
 			continue
