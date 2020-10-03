@@ -1198,6 +1198,7 @@ func (*AudienceService) Dashboard(e echo.Context) error {
 	} else {
 		leaderboard = leaderboardCache
 	}
+	e.Response().Header().Set("max-age", "1")
 	return writeProto(e, http.StatusOK, &audiencepb.DashboardResponse{
 		Leaderboard: leaderboard,
 	})
