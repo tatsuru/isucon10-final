@@ -50,6 +50,13 @@ var notifier xsuportal.Notifier
 var leaderboardCache *resourcespb.Leaderboard
 var leaderboardCacheExpiresAt time.Time
 
+var contestFreezesAt time.Time
+var contestEndsAt time.Time
+
+func inLeaderboardFreezeTime(now time.Time) bool {
+	return contestFreezesAt.After(now) && contestEndsAt.Before(now)
+}
+
 func main() {
 	srv := echo.New()
 	srv.Debug = util.GetEnv("DEBUG", "") != ""
@@ -171,6 +178,9 @@ func (*AdminService) Initialize(e echo.Context) error {
 	}
 
 	if req.Contest != nil {
+		contestFreezesAt = req.Contest.ContestFreezesAt.AsTime()
+		contestEndsAt = req.Contest.ContestEndsAt.AsTime()
+
 		_, err := db.Exec(
 			"INSERT `contest_config` (`registration_open_at`, `contest_starts_at`, `contest_freezes_at`, `contest_ends_at`) VALUES (?, ?, ?, ?)",
 			req.Contest.RegistrationOpenAt.AsTime().Round(time.Microsecond),
@@ -1134,7 +1144,8 @@ func (*AudienceService) ListTeams(e echo.Context) error {
 func (*AudienceService) Dashboard(e echo.Context) error {
 	var leaderboard *resourcespb.Leaderboard
 	var err error
-	if time.Now().After(leaderboardCacheExpiresAt) {
+	now := time.Now()
+	if now.After(leaderboardCacheExpiresAt) && !inLeaderboardFreezeTime(now) {
 		leaderboard, err = makeLeaderboardPB(e, 0)
 		if err != nil {
 			return fmt.Errorf("make leaderboard: %w", err)
