@@ -13,9 +13,9 @@ rotate_envoy="sudo mv /var/log/envoy/access.log.json /var/log/envoy/access.log.j
 #rotate_mysql="sudo mv /var/log/mariadb/slow.log /var/log/mariadb/slow.log.$now && sudo ln -sf /var/log/mariadb/slow.log.$now /var/log/mariadb/slow.log.latest; mysqladmin -uisucon -pisucon flush-logs"
 
 ssh isucon-server1 "$command" &
-#ssh isucon-server2 "$command" &
-#ssh isucon-server3 "$command" &
+ssh isucon-server2 "$command" &
+ssh isucon-server3 "$command" &
 
-ssh isucon@isucon-server1 "$rotate_envoy"
+ssh isucon@isucon-server3 "$rotate_envoy"
 
 wait
