@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	TeamCapacity               = 40
+	TeamCapacity               = 65
 	AdminID                    = "admin"
 	AdminPassword              = "admin"
 	DebugContestStatusFilePath = "/tmp/XSUPORTAL_CONTEST_STATUS"
@@ -59,7 +59,7 @@ func inLeaderboardFreezeTime(now time.Time) bool {
 
 func main() {
 	srv := echo.New()
-	srv.Debug = util.GetEnv("DEBUG", "") != ""
+	// srv.Debug = util.GetEnv("DEBUG", "") != ""
 	srv.Server.Addr = fmt.Sprintf(":%v", util.GetEnv("PORT", "9292"))
 	srv.HideBanner = true
 
@@ -74,7 +74,7 @@ func main() {
 	db, _ = xsuportal.GetDB()
 	db.SetMaxOpenConns(10)
 
-	srv.Use(middleware.Logger())
+	// srv.Use(middleware.Logger())
 	srv.Use(middleware.Recover())
 	srv.Use(session.Middleware(sessions.NewCookieStore([]byte("tagomoris"))))
 
@@ -1198,6 +1198,7 @@ func (*AudienceService) Dashboard(e echo.Context) error {
 	} else {
 		leaderboard = leaderboardCache
 	}
+	e.Response().Header().Set("max-age", "1")
 	return writeProto(e, http.StatusOK, &audiencepb.DashboardResponse{
 		Leaderboard: leaderboard,
 	})
