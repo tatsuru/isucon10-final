@@ -8,12 +8,13 @@ now=$(date +%Y%m%d-%H%M%S)
 branch=${1-master}
 make="PATH=$PATH:/home/isucon/local/golang/bin/ make"
 
-update="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && git pull && $make"
+update="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && git pull"
+build="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && $make"
 restart_app="sudo systemctl restart xsuportal-web-golang.service && sudo systemctl restart xsuportal-api-golang.service"
 rotate_envoy="sudo mv /var/log/envoy/access.log.json /var/log/envoy/access.log.json.$now && sudo ln -sf /var/log/envoy/access.log.json.$now /var/log/envoy/access.log.json.latest; sudo systemctl restart envoy.service"
 
-ssh isucon-server1 "$update && $restart_app" &
-ssh isucon-server2 "$update && $restart_app" &
+ssh isucon-server1 "$update && $build && $restart_app" &
+ssh isucon-server2 "$update && $build &&  $restart_app" &
 ssh isucon-server3 "$update" &
 
 wait
