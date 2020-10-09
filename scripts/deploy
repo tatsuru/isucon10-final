@@ -14,10 +14,7 @@ restart_app="sudo systemctl restart xsuportal-web-golang.service && sudo systemc
 rotate_envoy="sudo mv /var/log/envoy/access.log.json /var/log/envoy/access.log.json.$now && sudo ln -sf /var/log/envoy/access.log.json.$now /var/log/envoy/access.log.json.latest; sudo systemctl restart envoy.service"
 
 ssh isucon-server1 "$update && $build && $restart_app" &
-ssh isucon-server2 "$update && $build &&  $restart_app" &
+ssh isucon-server2 "$update && $build && $restart_app && $rotate_envoy" &
 ssh isucon-server3 "$update" &
 
 wait
-
-ssh isucon@isucon-server2 "$rotate_envoy"
-
