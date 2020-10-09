@@ -8,19 +8,16 @@ now=$(date +%Y%m%d-%H%M%S)
 branch=${1-master}
 make="PATH=$PATH:/home/isucon/local/golang/bin/ make"
 
-update="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && git pull && $make"
+update="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && git pull"
+build="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git checkout $branch && $make"
+update_env="cp -v /home/isucon/isucon10-final/env /home/isucon/env"
 restart_app="sudo systemctl restart xsuportal-web-golang.service && sudo systemctl restart xsuportal-api-golang.service"
-rotate_envoy="sudo mv /var/log/envoy/access.log.json /var/log/envoy/access.log.json.$now && sudo ln -sf /var/log/envoy/access.log.json.$now /var/log/envoy/access.log.json.latest; sudo systemctl restart envoy.service"
+update_envoy="sudo cp -v /home/isucon/isucon10-final/config/etc/envoy/config.yaml /etc/envoy/config.yaml"
+rotate="sudo mv /var/log/envoy/access.log.json /var/log/envoy/access.log.json.$now && sudo ln -sf /var/log/envoy/access.log.json.$now /var/log/envoy/access.log.json.latest"
+restart_envoy="sudo systemctl restart envoy.service"
 
-ssh isucon-server1 "$update" &
-ssh isucon-server2 "$update" &
-ssh isucon-server3 "$update" &
-
-wait
-
-ssh isucon-server1 "$restart_app" &
-ssh isucon-server2 "$restart_app" &
-
-ssh isucon@isucon-server2 "$rotate_envoy"
+ssh isucon-server1 "$update && $build && $update_env && $restart_app && $update_envoy && $restart_envoy" &
+ssh isucon-server2 "$update && $build && $update_env && $restart_app && $update_envoy && $rotate && $restart_envoy" &
+ssh isucon-server3 "$update && $update_env && $update_envoy && $restart_envoy" &
 
 wait
