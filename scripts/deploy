@@ -12,15 +12,11 @@ update="cd /home/isucon/isucon10-final/webapp/golang && git remote update && git
 restart_app="sudo systemctl restart xsuportal-web-golang.service && sudo systemctl restart xsuportal-api-golang.service"
 rotate_envoy="sudo mv /var/log/envoy/access.log.json /var/log/envoy/access.log.json.$now && sudo ln -sf /var/log/envoy/access.log.json.$now /var/log/envoy/access.log.json.latest; sudo systemctl restart envoy.service"
 
-ssh isucon-server1 "$update" &
-ssh isucon-server2 "$update" &
+ssh isucon-server1 "$update && $restart_app" &
+ssh isucon-server2 "$update && $restart_app" &
 ssh isucon-server3 "$update" &
 
 wait
 
-ssh isucon-server1 "$restart_app" &
-ssh isucon-server2 "$restart_app" &
-
 ssh isucon@isucon-server2 "$rotate_envoy"
 
-wait
