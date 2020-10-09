@@ -181,6 +181,8 @@ func (n *Notifier) NotifyClarificationAnswered(db sqlx.Ext, c *Clarification, up
 			}
 			subs, err := GetPushSubscriptions(db, contestant.ID)
 			for _, sub := range subs {
+				// 念の為二回送るとfailしないという噂
+				SendWebPush(key, notificationPB, &sub)
 				SendWebPush(key, notificationPB, &sub)
 			}
 		}
@@ -223,6 +225,8 @@ func (n *Notifier) NotifyBenchmarkJobFinished(db sqlx.Ext, job *BenchmarkJob) er
 			}
 			subs, err := GetPushSubscriptions(db, contestant.ID)
 			for _, sub := range subs {
+				// 念の為二回送るとfailしないという噂
+				SendWebPush(key, notificationPB, &sub)
 				SendWebPush(key, notificationPB, &sub)
 			}
 		}
